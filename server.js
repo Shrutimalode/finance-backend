@@ -10,36 +10,29 @@ const rateLimiter = require('./middleware/rateLimiter');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Apply rate limiting to all requests with '/api'
-app.use('/api', rateLimiter);
-
-// Swagger Documentation Route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Database connection
+app.use('/api', rateLimiter);
+
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Connected to MongoDB successfully!'))
   .catch((err) => console.error('Database connection error:', err));
 
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/records', recordRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
-// Basic route
 app.get('/', (req, res) => {
   res.send('Backend Server is running');
 });
 
-// Centralized Error Handler Middleware
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
