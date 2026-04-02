@@ -1,0 +1,144 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Finance Manager API",
+    "version": "1.0.0",
+    "description": "API documentation for the Finance App Backend"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Local server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "summary": "Register a new user",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "User created" } }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "Login user",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Successful login" } }
+      }
+    },
+    "/api/records": {
+      "get": {
+        "summary": "Get all financial records",
+        "tags": ["Records"],
+        "parameters": [
+          { "in": "query", "name": "page", "schema": { "type": "integer" }, "description": "Page number" },
+          { "in": "query", "name": "limit", "schema": { "type": "integer" }, "description": "Number of items per page" },
+          { "in": "query", "name": "search", "schema": { "type": "string" }, "description": "Search category or note" },
+          { "in": "query", "name": "type", "schema": { "type": "string" }, "description": "income or expense" }
+        ],
+        "responses": { "200": { "description": "Paginated list of records" } }
+      },
+      "post": {
+        "summary": "Create a new record",
+        "tags": ["Records"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": { "type": "number" },
+                  "type": { "type": "string" },
+                  "category": { "type": "string" },
+                  "note": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Created record" } }
+      }
+    },
+    "/api/records/{id}": {
+      "put": {
+        "summary": "Update a financial record",
+        "tags": ["Records"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": { "type": "number" },
+                  "type": { "type": "string", "enum": ["income", "expense"] },
+                  "category": { "type": "string" },
+                  "note": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Updated successfully" } }
+      },
+      "delete": {
+        "summary": "Soft delete a record",
+        "tags": ["Records"],
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Deleted successfully" } }
+      }
+    },
+    "/api/dashboard/summary": {
+      "get": {
+        "summary": "Get dashboard summaries and trends",
+        "tags": ["Dashboard"],
+        "responses": { "200": { "description": "Dashboard data" } }
+      }
+    }
+  }
+}
