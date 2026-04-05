@@ -73,10 +73,8 @@ exports.login = async (req, res, next) => {
   }
 };
 
-// Example of a Protected Route controller
 exports.getUserProfile = async (req, res, next) => {
   try {
-    // `req.user` is populated by the authMiddleware
     res.status(200).json({
       message: 'You have accessed a private route!',
       user: req.user

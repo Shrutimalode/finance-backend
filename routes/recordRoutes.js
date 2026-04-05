@@ -10,8 +10,6 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// Apply the protect middleware globally on this router
-// You must be logged in to touch anything here!
 router.use(protect);
 
 router.route('/')

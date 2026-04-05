@@ -1,16 +1,12 @@
 const FinancialRecord = require('../models/FinancialRecord');
 const ErrorResponse = require('../utils/ErrorResponse');
 
-// @desc    Get dashboard summary (Totals, category-wise, trends, recent)
-// @route   GET /api/dashboard/summary
-// @access  Private (Admin, Analyst)
 exports.getDashboardSummary = async (req, res, next) => {
   try {
-    // 1. Calculate overall totals (totalIncome, totalExpense, netBalance)
     const totals = await FinancialRecord.aggregate([
       {
         $group: {
-          _id: '$type', // Group by "income" or "expense"
+          _id: '$type',
           totalAmount: { $sum: '$amount' }
         }
       }
@@ -26,7 +22,6 @@ exports.getDashboardSummary = async (req, res, next) => {
 
     const netBalance = totalIncome - totalExpense;
 
-    // 2. Category-wise totals
     const categoryWiseTotals = await FinancialRecord.aggregate([
       {
         $group: {
@@ -45,7 +40,6 @@ exports.getDashboardSummary = async (req, res, next) => {
       { $sort: { totalAmount: -1 } }
     ]);
 
-    // 3. Monthly trends (income vs expense per month)
     const monthlyTrendsData = await FinancialRecord.aggregate([
       {
         $group: {
@@ -62,10 +56,8 @@ exports.getDashboardSummary = async (req, res, next) => {
       }
     ]);
 
-    // Format the monthly trends for easier client-side consumption
     const formattedTrends = {};
     monthlyTrendsData.forEach(trend => {
-      // Create a key structured like "2023-01", "2023-11"
       const monthKey = `${trend._id.year}-${String(trend._id.month).padStart(2, '0')}`;
       
       if (!formattedTrends[monthKey]) {
@@ -80,13 +72,11 @@ exports.getDashboardSummary = async (req, res, next) => {
       }
     });
 
-    // 4. Recent transactions (last 5 records)
     const recentTransactions = await FinancialRecord.find()
-      .sort({ date: -1 }) // Newest first
+      .sort({ date: -1 })
       .limit(5)
-      .populate('userId', 'name email'); // Bring in the user who created it
+      .populate('userId', 'name email');
 
-    // Compile entire dashboard payload
     res.status(200).json({
       totalIncome,
       totalExpense,
